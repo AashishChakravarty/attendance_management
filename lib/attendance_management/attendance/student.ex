@@ -2,6 +2,11 @@ defmodule AttendanceManagement.Attendance.Student do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @required ~W(school_id name roll_number)a
+  @optional ~W(id father_name)a
+  @only @required ++ @optional
+
+  @derive {Jason.Encoder, only: @only}
   schema "students" do
     field :father_name, :string
     field :name, :string
@@ -16,8 +21,8 @@ defmodule AttendanceManagement.Attendance.Student do
   @doc false
   def changeset(student, attrs) do
     student
-    |> cast(attrs, [:school_id, :name, :father_name, :roll_number])
-    |> validate_required([:school_id, :name, :father_name, :roll_number])
+    |> cast(attrs, @only)
+    |> validate_required(@required)
     |> unique_constraint(:students_roll_number_index)
   end
 end

@@ -293,4 +293,19 @@ defmodule AttendanceManagement.Attendance do
   def change_attendance_record(%AttendanceRecord{} = attendance_record, attrs \\ %{}) do
     AttendanceRecord.changeset(attendance_record, attrs)
   end
+
+  def get_attendance_records_by_roll_number(roll_number) do
+    from(attendance_record in AttendanceRecord,
+      join: student in assoc(attendance_record, :student),
+      where: student.roll_number == ^roll_number
+    )
+    |> Repo.all()
+  end
+
+  def get_students_by_school_id(school_id) do
+    from(student in Student,
+      where: student.school_id == ^school_id
+    )
+    |> Repo.all()
+  end
 end

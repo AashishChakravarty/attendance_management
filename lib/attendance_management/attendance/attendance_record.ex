@@ -2,6 +2,11 @@ defmodule AttendanceManagement.Attendance.AttendanceRecord do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @required ~W(student_id date session)a
+  @optional ~W(id)a
+  @only @required ++ @optional
+
+  @derive {Jason.Encoder, only: @only}
   schema "attendance_records" do
     field :date, :utc_datetime
     field :session, :string
@@ -14,8 +19,8 @@ defmodule AttendanceManagement.Attendance.AttendanceRecord do
   @doc false
   def changeset(attendance_record, attrs) do
     attendance_record
-    |> cast(attrs, [:student_id, :date, :session])
-    |> validate_required([:student_id, :date, :session])
+    |> cast(attrs, @only)
+    |> validate_required(@required)
     |> unique_constraint(:attendance_records_student_id_date_session_index)
   end
 end

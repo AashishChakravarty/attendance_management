@@ -7,6 +7,15 @@ defmodule AttendanceManagementWeb.Router do
 
   scope "/api", AttendanceManagementWeb do
     pipe_through :api
+
+    get "/school", SchoolController, :show
+    post "/school", SchoolController, :create
+
+    get "/student", StudentController, :show
+    post "/student", StudentController, :create
+
+    get "/attendance", AttendanceController, :show
+    post "/attendance", AttendanceController, :create
   end
 
   # Enables LiveDashboard only for development

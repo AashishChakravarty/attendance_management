@@ -2,6 +2,11 @@ defmodule AttendanceManagement.Attendance.School do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @required ~W(name)a
+  @optional ~W(id address)a
+  @only @required ++ @optional
+
+  @derive {Jason.Encoder, only: @only}
   schema "schools" do
     field :address, :string
     field :name, :string
@@ -14,7 +19,7 @@ defmodule AttendanceManagement.Attendance.School do
   @doc false
   def changeset(school, attrs) do
     school
-    |> cast(attrs, [:name, :address])
-    |> validate_required([:name, :address])
+    |> cast(attrs, @only)
+    |> validate_required(@required)
   end
 end
