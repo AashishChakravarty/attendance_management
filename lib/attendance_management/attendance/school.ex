@@ -11,8 +11,6 @@ defmodule AttendanceManagement.Attendance.School do
     field :address, :string
     field :name, :string
 
-    has_many(:students, AttendanceManagement.Attendance.Student)
-
     timestamps()
   end
 
