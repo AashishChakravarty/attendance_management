@@ -9,7 +9,7 @@ defmodule AttendanceManagement.Attendance.AttendanceRecord do
   @derive {Jason.Encoder, only: @only}
   schema "attendance_records" do
     field :student_id, :integer
-    field :date, :utc_datetime
+    field :date, :date
     field :session, :string
 
     timestamps()

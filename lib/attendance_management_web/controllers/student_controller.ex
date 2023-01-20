@@ -15,6 +15,30 @@ defmodule AttendanceManagementWeb.StudentController do
     })
   end
 
+  def show(conn, %{"class" => class, "section" => section, "date" => date}) do
+    students = Attendance.get_students_by_attendance(date, class, section)
+
+    conn
+    |> put_status(:ok)
+    |> json(%{
+      status: true,
+      message: "Successfully fetched1",
+      data: students
+    })
+  end
+
+  def show(conn, %{"class" => class, "section" => section}) do
+    students = Attendance.get_students_by_class(class, section)
+
+    conn
+    |> put_status(:ok)
+    |> json(%{
+      status: true,
+      message: "Successfully fetched",
+      data: students
+    })
+  end
+
   def create(
         conn,
         %{

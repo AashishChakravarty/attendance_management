@@ -47,4 +47,26 @@ defmodule AttendanceManagementWeb.AttendanceController do
         |> json(%{status: false, message: "Something went to wrong. Please ary again"})
     end
   end
+
+  def create(conn, %{
+        "date" => date,
+        "class" => class,
+        "section" => section,
+        "students" => students
+      }) do
+    case Attendance.mark_absent(students, date, class, section) do
+      :ok ->
+        conn
+        |> put_status(:created)
+        |> json(%{
+          status: true,
+          message: "Successfully Marked Attendance."
+        })
+
+      _ ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{status: false, message: "Something went to wrong. Please ary again"})
+    end
+  end
 end

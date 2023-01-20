@@ -294,10 +294,25 @@ defmodule AttendanceManagement.Attendance do
     AttendanceRecord.changeset(attendance_record, attrs)
   end
 
+  def get_attendance_record_by_date_student_id(date, student_id) do
+    Repo.get_by(AttendanceRecord, date: date, student_id: student_id)
+  end
+
   def get_attendance_records_by_roll_number(roll_number) do
     from(attendance_record in AttendanceRecord,
       join: student in assoc(attendance_record, :student),
       where: student.roll_number == ^roll_number
+    )
+    |> Repo.all()
+  end
+
+  def get_attendance_records_by_date(date, class, section) do
+    from(attendance_record in AttendanceRecord,
+      join: student in Student,
+      on: student.id == attendance_record.student_id,
+      where:
+        student.class == ^class and student.section == ^section and
+          attendance_record.date == ^date
     )
     |> Repo.all()
   end
@@ -307,5 +322,59 @@ defmodule AttendanceManagement.Attendance do
       where: student.school_id == ^school_id
     )
     |> Repo.all()
+  end
+
+  def get_students_by_class(class, section) do
+    from(student in Student,
+      where: student.class == ^class and student.section == ^section
+    )
+    |> Repo.all()
+  end
+
+  def get_students_by_attendance(date, class, section) do
+    from(student in Student,
+      left_join: attendance_record in AttendanceRecord,
+      on: attendance_record.student_id == student.id and attendance_record.date == ^date,
+      where:
+        student.class == ^class and student.section == ^section,
+      select: %{
+        student_id: student.id,
+        student_name: student.name,
+        roll_number: student.roll_number,
+        date: attendance_record.date,
+        session: attendance_record.session
+      }
+    )
+    |> Repo.all()
+  end
+
+  def mark_absent(students, date, class, section) when is_list(students) do
+    attendance_records = get_attendance_records_by_date(date, class, section)
+
+    students
+    |> Enum.each(fn student ->
+      mark_absent(student, date, attendance_records)
+    end)
+
+    attendance_records
+    |> Enum.each(fn attendance_record ->
+      if is_nil(students |> Enum.find(&(&1["student_id"] == attendance_record.student_id))) do
+        delete_attendance_record(attendance_record)
+      end
+    end)
+  end
+
+  def mark_absent(student, date, attendance_records) do
+    with %AttendanceRecord{} = attendance_record <-
+           Enum.find(attendance_records, &(&1.student_id == student["student_id"])) do
+      update_attendance_record(attendance_record, %{session: student["session"]})
+    else
+      nil ->
+        create_attendance_record(%{
+          student_id: student["student_id"],
+          date: date,
+          session: student["session"]
+        })
+    end
   end
 end
